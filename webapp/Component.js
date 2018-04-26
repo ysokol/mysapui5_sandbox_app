@@ -25,6 +25,7 @@ sap.ui.define([
 			//sap.ui.getCore().loadLibrary("openui5.googlemaps", sHttpPath + "/utils/googlemaps/");
 			$.getScript(sHttpPath + "/utils/msgraph-sdk/graph-js-sdk-web.js");
 			$.getScript(sHttpPath + "/utils/msal/msal.min.js");
+			$.getScript("https://js.live.net/v7.2/OneDrive.js");
 			
 			// set the device model
 			this.setModel(models.createDeviceModel(), "device");

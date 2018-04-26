@@ -9,9 +9,26 @@ sap.ui.define([
 			this._oMicrosoftGraphApi = new MicrosoftGraphApi();
 		},
 
-		onTest: function(oEvent) {
+		onAuthorize: function(oEvent) {
 			this._oMicrosoftGraphApi.init();
 			//alert("onTest");
+		},
+		onLogOut: function(oEvent) {
+			this._oMicrosoftGraphApi.logOut();
+		},
+		onGetMyRecentFiles: function(oEvent) {
+			//this._oMicrosoftGraphApi.getMyRecentFiles();
+			//
+			var odOptions = {
+				clientId: "bb62c1a2-bc76-4363-a0ef-9c768717bcc0",
+				action: "query",
+				multiSelect: true,
+				advanced: {},
+				success: function(files) { /* success handler */ },
+				cancel: function() { /* cancel handler */ },
+				error: function(e) { /* error handler */ }
+			}
+			OneDrive.open(odOptions);
 		}
 	});
 });
