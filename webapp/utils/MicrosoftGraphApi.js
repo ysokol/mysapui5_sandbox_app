@@ -28,7 +28,7 @@ sap.ui.define([
 
 		},
 
-		logOut: function() {
+		login: function() {
 			/*this._eraseCookie('msgraph-access-tocken');
 			alert("2");
 			

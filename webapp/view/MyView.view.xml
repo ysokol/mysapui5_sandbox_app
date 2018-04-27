@@ -4,8 +4,8 @@
 		<pages>
 			<Page title="{i18n>title}">
 				<content>
-					<Button text="Authorize M$ Graph API" press="onAuthorize"/>
-					<Button text="Logout M$ Graph API" press="onLogOut"/>
+					<Button text="Read tocken from coockie" press="onAuthorize"/>
+					<Button text="Login M$ Graph API" press="onLogIn"/>
 					<Button text="Read My Recent Files" press="onGetMyRecentFiles"/>
 				</content>
 			</Page>
