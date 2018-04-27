@@ -6,7 +6,7 @@
 				<content>
 					<Button text="Read tocken from coockie" press="onAuthorize"/>
 					<Button text="Login M$ Graph API" press="onLogIn"/>
-					<Button text="Read My Recent Files" press="onGetMyRecentFiles"/>
+					<Button text="Start Workflow" press="onStartWorkflow"/>
 				</content>
 			</Page>
 		</pages>

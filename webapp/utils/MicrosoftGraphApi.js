@@ -1,18 +1,36 @@
 sap.ui.define([
 	"sap/ui/base/Object",
-	"mysapui5_sandbox_app/utils/MyException"
-], function(Object, MyException) {
+	"mysapui5_sandbox_app/utils/MyException",
+	"mysapui5_sandbox_app/utils/ResourceLoader"
+], function(Object, MyException, ResourceLoader) {
 	"use strict";
 	return Object.extend("mysapui5_sandbox_app.utils.MicrosoftGraphApi", {
 
 		constructor: function() {
-			this._sClientID = 'bb62c1a2-bc76-4363-a0ef-9c768717bcc0';
-			this._aGraphScopes = ["user.read", "files.read.all", "files.read", ];
-
+			var that = this;
+			that._sClientID = '62190cc8-8c2d-479d-b89f-a610fc0c3c73';
+			that._aGraphScopes = ["user.read", "files.read.all", "files.read"];
+			
+			var oResourceLoader = new ResourceLoader();
+			var sHttpPath = jQuery.sap.getModulePath("mysapui5_sandbox_app");
+			
+			Promise.all([
+				oResourceLoader.getScript(sHttpPath + "/utils/msgraph-sdk/graph-js-sdk-web.js"), 
+				oResourceLoader.getScript(sHttpPath + "/utils/msal/msal.min.js"), 
+				oResourceLoader.getScript("https://js.live.net/v7.2/OneDrive.js")
+			])
+			.then(function(aResults) {
+				that._userAgentApplication = new Msal.UserAgentApplication(that._sClientID, null, that._authCallback, {
+					logger: that._oLogger,
+					cacheLocation: 'localStorage'
+				});
+				that.init();
+			})
+			
 		},
 
 		init: function() {
-
+			
 			var that = this;
 
 			var sCookieToken = that._getCookie('msgraph-access-tocken');
@@ -29,6 +47,7 @@ sap.ui.define([
 		},
 
 		login: function() {
+			debugger;
 			/*this._eraseCookie('msgraph-access-tocken');
 			alert("2");
 			
@@ -37,15 +56,11 @@ sap.ui.define([
 				correlationId: '12345'
 			});*/
 			var that = this;
-			var userAgentApplication = new Msal.UserAgentApplication(that._sClientID, null, that._authCallback, {
-				logger: that._oLogger,
-				cacheLocation: 'localStorage'
-			});
 
-			userAgentApplication.loginPopup(that._aGraphScopes).then(function(idToken) {
+			that._userAgentApplication.loginPopup(that._aGraphScopes).then(function(idToken) {
 				//alert(idToken);
 				//Login Success
-				userAgentApplication.acquireTokenSilent(that._aGraphScopes).then(function(accessToken) {
+				that._userAgentApplication.acquireTokenSilent(that._aGraphScopes).then(function(accessToken) {
 					alert("Access Tocke Aquired!");
 					that._sAccessTocken = accessToken;
 					that._oClient = MicrosoftGraph.Client.init({
@@ -56,7 +71,7 @@ sap.ui.define([
 					that._setCookie('msgraph-access-tocken', that._sAccessTocken, 7);
 				}, function(error) {
 					//AcquireToken Failure, send an interactive request.
-					userAgentApplication.acquireTokenPopup(that._aGraphScopes).then(function(accessToken) {
+					that._userAgentApplication.acquireTokenPopup(that._aGraphScopes).then(function(accessToken) {
 						alert("Access Tocke Aquired!");
 						that._sAccessTocken = accessToken;
 						that._oClient = MicrosoftGraph.Client.init({
@@ -74,7 +89,7 @@ sap.ui.define([
 			});
 
 		},
-
+		
 		getMyRecentFiles: function() {
 			var that = this;
 			that._oClient
@@ -83,14 +98,68 @@ sap.ui.define([
 					alert(JSON.stringify(res)); // prints info about authenticated user
 				});
 		},
-
+		
+		openFileOpenDialog: function() {
+			var that = this;
+			return new Promise(function(resolve, reject) {
+				OneDrive.open({
+					clientId: that._sClientID,
+					action: "query",
+					multiSelect: false,
+					advanced: {},
+					success: function(aFiles) { 
+						resolve(aFiles); 
+					},
+					cancel: function() { 
+						reject();
+					},
+					error: function(oError) { 
+						reject(new MyException("MicrosoftGraphApi", "Failed fileOpenDialog()", oError));
+					}
+				});	
+			});
+			
+		},
+		
+		readWorksheetList: function(sFileId) {
+			var that = this;
+			return new Promise(function(resolve, reject) {
+				that._oClient
+				.api("me/drive/items('" + sFileId + "')/workbook/worksheets/")
+				.get((oError, oResult) => {
+					if (oResult) {
+						resolve(oResult.value);
+					}
+					else {
+						reject(new MyException("MicrosoftGraphApi", "Failed readWorksheetList()", oError));
+					}
+				});
+			});
+		},
+		
+		readWorksheet: function(sWorksheetPath) {
+			var that = this;
+			return new Promise(function(resolve, reject) {
+				that._oClient
+				.api(sWorksheetPath + "/Range(address='Sheet1!A1:Z9999')")
+				.get((oError, oResult) => {
+					if (oResult) {
+						resolve(oResult);
+					}
+					else {
+						reject(new MyException("MicrosoftGraphApi", "Failed readWorksheetList()", oError));
+					}
+				});
+			});
+		},
+		
 		_loggerCallback: function(logLevel, sMessage, piiLoggingEnabled) {
-			alert(sMessage);
+			//alert(sMessage);
 		},
 
 		_authCallback: function(errorDesc, token, error, tokenType) {
 			if (token) {
-				alert(token);
+				//alert(token);
 			} else {
 				alert(error + ":" + errorDesc);
 			}
