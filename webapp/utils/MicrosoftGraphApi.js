@@ -141,7 +141,7 @@ sap.ui.define([
 			var that = this;
 			return new Promise(function(resolve, reject) {
 				that._oClient
-				.api(sWorksheetPath + "/Range(address='Sheet1!A1:Z9999')")
+				.api(sWorksheetPath + "/Range(address='Sheet1!A1:Z99')")
 				.get((oError, oResult) => {
 					if (oResult) {
 						resolve(oResult);
