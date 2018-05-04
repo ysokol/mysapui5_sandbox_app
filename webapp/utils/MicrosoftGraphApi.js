@@ -116,7 +116,7 @@ sap.ui.define([
 					error: function(oError) { 
 						reject(new MyException("MicrosoftGraphApi", "Failed fileOpenDialog()", oError));
 					}
-				});	
+				});
 			});
 			
 		},
@@ -141,7 +141,7 @@ sap.ui.define([
 			var that = this;
 			return new Promise(function(resolve, reject) {
 				that._oClient
-				.api(sWorksheetPath + "/Range(address='Sheet1!A1:Z99')")
+				.api(sWorksheetPath + "/Range(address='Sheet1!A1:M999')/UsedRange")
 				.get((oError, oResult) => {
 					if (oResult) {
 						resolve(oResult);
